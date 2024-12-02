@@ -1,0 +1,11 @@
+{{#vars}}
+  {{#isEnum}}
+    @SerializedName("{{name}}")
+    private {{datatype}} {{name}};
+  {{/isEnum}}
+
+  {{^isEnum}}
+    @SerializedName("{{name}}")
+    private {{datatype}} {{name}};
+  {{/isEnum}}
+{{/vars}}

@@ -1,0 +1,932 @@
+openapi: 3.0.3
+info:
+  title: Infisical API
+  description: List of all available APIs that can be consumed
+  version: 0.0.1
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: An access token in Infisical
+  schemas: {}
+paths:
+  /api/v3/secrets/raw:
+    get:
+      description: List secrets
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: workspaceId
+          required: false
+          description: The ID of the project to list secrets from.
+        - schema:
+            type: string
+          in: query
+          name: workspaceSlug
+          required: false
+          description: The slug of the project to list secrets from. This parameter is only applicable by machine identities.
+        - schema:
+            type: string
+          in: query
+          name: environment
+          required: false
+          description: The slug of the environment to list secrets from.
+        - schema:
+            type: string
+            default: /
+          in: query
+          name: secretPath
+          required: false
+          description: The secret path to list secrets from.
+        - schema:
+            type: string
+            enum:
+              - 'true'
+              - 'false'
+            default: 'false'
+          in: query
+          name: expandSecretReferences
+          required: false
+          description: Whether or not to expand secret references
+        - schema:
+            type: string
+            enum:
+              - 'true'
+              - 'false'
+            default: 'false'
+          in: query
+          name: recursive
+          required: false
+          description: 'Whether or not to fetch all secrets from the specified base path, and all of its subdirectories. Note, the max depth is 20 deep.'
+        - schema:
+            type: string
+            enum:
+              - 'true'
+              - 'false'
+            default: 'false'
+          in: query
+          name: include_imports
+          required: false
+          description: Weather to include imported secrets or not.
+        - schema:
+            type: string
+          in: query
+          name: tagSlugs
+          required: false
+          description: The comma separated tag slugs to filter secrets
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  secrets:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        workspace:
+                          type: string
+                        environment:
+                          type: string
+                        version:
+                          type: number
+                        type:
+                          type: string
+                        secretKey:
+                          type: string
+                        secretValue:
+                          type: string
+                        secretComment:
+                          type: string
+                        secretReminderNote:
+                          type: string
+                          nullable: true
+                        secretReminderRepeatDays:
+                          type: number
+                          nullable: true
+                        skipMultilineEncoding:
+                          type: boolean
+                          default: false
+                          nullable: true
+                        metadata:
+                          nullable: true
+                        createdAt:
+                          type: string
+                          format: date-time
+                        updatedAt:
+                          type: string
+                          format: date-time
+                        secretPath:
+                          type: string
+                        tags:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                              slug:
+                                type: string
+                              color:
+                                type: string
+                                nullable: true
+                              name:
+                                type: string
+                            required:
+                              - id
+                              - slug
+                              - name
+                            additionalProperties: false
+                      required:
+                        - id
+                        - workspace
+                        - environment
+                        - version
+                        - type
+                        - secretKey
+                        - secretValue
+                        - secretComment
+                        - createdAt
+                        - updatedAt
+                      additionalProperties: false
+                  imports:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        secretPath:
+                          type: string
+                        environment:
+                          type: string
+                        folderId:
+                          type: string
+                        secrets:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                              workspace:
+                                type: string
+                              environment:
+                                type: string
+                              version:
+                                type: number
+                              type:
+                                type: string
+                              secretKey:
+                                type: string
+                              secretValue:
+                                type: string
+                              secretComment:
+                                type: string
+                              secretReminderNote:
+                                type: string
+                                nullable: true
+                              secretReminderRepeatDays:
+                                type: number
+                                nullable: true
+                              skipMultilineEncoding:
+                                type: boolean
+                                default: false
+                                nullable: true
+                              metadata:
+                                nullable: true
+                            required:
+                              - id
+                              - workspace
+                              - environment
+                              - version
+                              - type
+                              - secretKey
+                              - secretValue
+                              - secretComment
+                            additionalProperties: false
+                      required:
+                        - secretPath
+                        - environment
+                        - secrets
+                      additionalProperties: false
+                required:
+                  - secrets
+                additionalProperties: false
+  '/api/v3/secrets/raw/{secretName}':
+    get:
+      description: Get a secret by name
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: workspaceId
+          required: false
+          description: The ID of the project to get the secret from.
+        - schema:
+            type: string
+          in: query
+          name: workspaceSlug
+          required: false
+          description: The slug of the project to get the secret from.
+        - schema:
+            type: string
+          in: query
+          name: environment
+          required: false
+          description: The slug of the environment to get the secret from.
+        - schema:
+            type: string
+            default: /
+          in: query
+          name: secretPath
+          required: false
+          description: The path of the secret to get.
+        - schema:
+            type: number
+          in: query
+          name: version
+          required: false
+          description: The version of the secret to get.
+        - schema:
+            type: string
+            enum:
+              - shared
+              - personal
+            default: shared
+          in: query
+          name: type
+          required: false
+          description: The type of the secret to get.
+        - schema:
+            type: string
+            enum:
+              - 'true'
+              - 'false'
+            default: 'false'
+          in: query
+          name: expandSecretReferences
+          required: false
+          description: Whether or not to expand secret references
+        - schema:
+            type: string
+            enum:
+              - 'true'
+              - 'false'
+            default: 'false'
+          in: query
+          name: include_imports
+          required: false
+          description: Weather to include imported secrets or not.
+        - schema:
+            type: string
+          in: path
+          name: secretName
+          required: true
+          description: The name of the secret to get.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  secret:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      workspace:
+                        type: string
+                      environment:
+                        type: string
+                      version:
+                        type: number
+                      type:
+                        type: string
+                      secretKey:
+                        type: string
+                      secretValue:
+                        type: string
+                      secretComment:
+                        type: string
+                      secretReminderNote:
+                        type: string
+                        nullable: true
+                      secretReminderRepeatDays:
+                        type: number
+                        nullable: true
+                      skipMultilineEncoding:
+                        type: boolean
+                        default: false
+                        nullable: true
+                      metadata:
+                        nullable: true
+                      createdAt:
+                        type: string
+                        format: date-time
+                      updatedAt:
+                        type: string
+                        format: date-time
+                      tags:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                            slug:
+                              type: string
+                            color:
+                              type: string
+                              nullable: true
+                            name:
+                              type: string
+                          required:
+                            - id
+                            - slug
+                            - name
+                          additionalProperties: false
+                    required:
+                      - id
+                      - workspace
+                      - environment
+                      - version
+                      - type
+                      - secretKey
+                      - secretValue
+                      - secretComment
+                      - createdAt
+                      - updatedAt
+                    additionalProperties: false
+                required:
+                  - secret
+                additionalProperties: false
+    post:
+      description: Create secret
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                workspaceId:
+                  type: string
+                  description: The ID of the project to create the secret in.
+                environment:
+                  type: string
+                  description: The slug of the environment to create the secret in.
+                secretPath:
+                  type: string
+                  default: /
+                  description: The path to create the secret in.
+                secretValue:
+                  type: string
+                  description: The value of the secret to create.
+                secretComment:
+                  type: string
+                  default: ''
+                  description: Attach a comment to the secret.
+                tagIds:
+                  type: array
+                  items:
+                    type: string
+                  description: The ID of the tags to be attached to the created secret.
+                skipMultilineEncoding:
+                  type: boolean
+                  description: Skip multiline encoding for the secret value.
+                type:
+                  type: string
+                  enum:
+                    - shared
+                    - personal
+                  default: shared
+                  description: The type of the secret to create.
+                secretReminderRepeatDays:
+                  type: number
+                  nullable: true
+                  description: 'Interval for secret rotation notifications, measured in days'
+                secretReminderNote:
+                  type: string
+                  nullable: true
+                  description: Note to be attached in notification email
+              required:
+                - workspaceId
+                - environment
+                - secretValue
+              additionalProperties: false
+        required: true
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: secretName
+          required: true
+          description: The name of the secret to create.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - type: object
+                    properties:
+                      secret:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          workspace:
+                            type: string
+                          environment:
+                            type: string
+                          version:
+                            type: number
+                          type:
+                            type: string
+                          secretKey:
+                            type: string
+                          secretValue:
+                            type: string
+                          secretComment:
+                            type: string
+                          secretReminderNote:
+                            type: string
+                            nullable: true
+                          secretReminderRepeatDays:
+                            type: number
+                            nullable: true
+                          skipMultilineEncoding:
+                            type: boolean
+                            default: false
+                            nullable: true
+                          metadata:
+                            nullable: true
+                          createdAt:
+                            type: string
+                            format: date-time
+                          updatedAt:
+                            type: string
+                            format: date-time
+                        required:
+                          - id
+                          - workspace
+                          - environment
+                          - version
+                          - type
+                          - secretKey
+                          - secretValue
+                          - secretComment
+                          - createdAt
+                          - updatedAt
+                        additionalProperties: false
+                    required:
+                      - secret
+                    additionalProperties: false
+                  - type: object
+                    properties:
+                      approval:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          policyId:
+                            type: string
+                          hasMerged:
+                            type: boolean
+                            default: false
+                          status:
+                            type: string
+                            default: open
+                          conflicts:
+                            nullable: true
+                          slug:
+                            type: string
+                          folderId:
+                            type: string
+                          createdAt:
+                            type: string
+                            format: date-time
+                          updatedAt:
+                            type: string
+                            format: date-time
+                          isReplicated:
+                            type: boolean
+                            nullable: true
+                          committerUserId:
+                            type: string
+                          statusChangedByUserId:
+                            type: string
+                            nullable: true
+                          bypassReason:
+                            type: string
+                            nullable: true
+                        required:
+                          - id
+                          - policyId
+                          - slug
+                          - folderId
+                          - createdAt
+                          - updatedAt
+                          - committerUserId
+                        additionalProperties: false
+                    required:
+                      - approval
+                    additionalProperties: false
+                    description: When secret protection policy is enabled
+    patch:
+      description: Update secret
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                workspaceId:
+                  type: string
+                  description: The ID of the project to update the secret in.
+                environment:
+                  type: string
+                  description: The slug of the environment where the secret is located.
+                secretValue:
+                  type: string
+                  description: The new value of the secret.
+                secretPath:
+                  type: string
+                  default: /
+                  description: The path of the secret to update
+                skipMultilineEncoding:
+                  type: boolean
+                  description: Skip multiline encoding for the secret value.
+                type:
+                  type: string
+                  enum:
+                    - shared
+                    - personal
+                  default: shared
+                  description: The type of the secret to update.
+                tagIds:
+                  type: array
+                  items:
+                    type: string
+                  description: The ID of the tags to be attached to the updated secret.
+                metadata:
+                  type: object
+                  additionalProperties:
+                    type: string
+                secretReminderNote:
+                  type: string
+                  nullable: true
+                  description: Note to be attached in notification email
+                secretReminderRepeatDays:
+                  type: number
+                  nullable: true
+                  description: 'Interval for secret rotation notifications, measured in days'
+                newSecretName:
+                  type: string
+                  minLength: 1
+                  description: The new name for the secret
+                secretComment:
+                  type: string
+                  description: Update comment to the secret.
+              required:
+                - workspaceId
+                - environment
+                - secretValue
+              additionalProperties: false
+        required: true
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: secretName
+          required: true
+          description: The name of the secret to update.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - type: object
+                    properties:
+                      secret:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          workspace:
+                            type: string
+                          environment:
+                            type: string
+                          version:
+                            type: number
+                          type:
+                            type: string
+                          secretKey:
+                            type: string
+                          secretValue:
+                            type: string
+                          secretComment:
+                            type: string
+                          secretReminderNote:
+                            type: string
+                            nullable: true
+                          secretReminderRepeatDays:
+                            type: number
+                            nullable: true
+                          skipMultilineEncoding:
+                            type: boolean
+                            default: false
+                            nullable: true
+                          metadata:
+                            nullable: true
+                          createdAt:
+                            type: string
+                            format: date-time
+                          updatedAt:
+                            type: string
+                            format: date-time
+                        required:
+                          - id
+                          - workspace
+                          - environment
+                          - version
+                          - type
+                          - secretKey
+                          - secretValue
+                          - secretComment
+                          - createdAt
+                          - updatedAt
+                        additionalProperties: false
+                    required:
+                      - secret
+                    additionalProperties: false
+                  - type: object
+                    properties:
+                      approval:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          policyId:
+                            type: string
+                          hasMerged:
+                            type: boolean
+                            default: false
+                          status:
+                            type: string
+                            default: open
+                          conflicts:
+                            nullable: true
+                          slug:
+                            type: string
+                          folderId:
+                            type: string
+                          createdAt:
+                            type: string
+                            format: date-time
+                          updatedAt:
+                            type: string
+                            format: date-time
+                          isReplicated:
+                            type: boolean
+                            nullable: true
+                          committerUserId:
+                            type: string
+                          statusChangedByUserId:
+                            type: string
+                            nullable: true
+                          bypassReason:
+                            type: string
+                            nullable: true
+                        required:
+                          - id
+                          - policyId
+                          - slug
+                          - folderId
+                          - createdAt
+                          - updatedAt
+                          - committerUserId
+                        additionalProperties: false
+                    required:
+                      - approval
+                    additionalProperties: false
+                    description: When secret protection policy is enabled
+    delete:
+      description: Delete secret
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                workspaceId:
+                  type: string
+                  description: The ID of the project where the secret is located.
+                environment:
+                  type: string
+                  description: The slug of the environment where the secret is located.
+                secretPath:
+                  type: string
+                  default: /
+                  description: The path of the secret.
+                type:
+                  type: string
+                  enum:
+                    - shared
+                    - personal
+                  default: shared
+                  description: The type of the secret to delete.
+              required:
+                - workspaceId
+                - environment
+              additionalProperties: false
+        required: true
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: secretName
+          required: true
+          description: The name of the secret to delete.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - type: object
+                    properties:
+                      secret:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          workspace:
+                            type: string
+                          environment:
+                            type: string
+                          version:
+                            type: number
+                          type:
+                            type: string
+                          secretKey:
+                            type: string
+                          secretValue:
+                            type: string
+                          secretComment:
+                            type: string
+                          secretReminderNote:
+                            type: string
+                            nullable: true
+                          secretReminderRepeatDays:
+                            type: number
+                            nullable: true
+                          skipMultilineEncoding:
+                            type: boolean
+                            default: false
+                            nullable: true
+                          metadata:
+                            nullable: true
+                          createdAt:
+                            type: string
+                            format: date-time
+                          updatedAt:
+                            type: string
+                            format: date-time
+                        required:
+                          - id
+                          - workspace
+                          - environment
+                          - version
+                          - type
+                          - secretKey
+                          - secretValue
+                          - secretComment
+                          - createdAt
+                          - updatedAt
+                        additionalProperties: false
+                    required:
+                      - secret
+                    additionalProperties: false
+                  - type: object
+                    properties:
+                      approval:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          policyId:
+                            type: string
+                          hasMerged:
+                            type: boolean
+                            default: false
+                          status:
+                            type: string
+                            default: open
+                          conflicts:
+                            nullable: true
+                          slug:
+                            type: string
+                          folderId:
+                            type: string
+                          createdAt:
+                            type: string
+                            format: date-time
+                          updatedAt:
+                            type: string
+                            format: date-time
+                          isReplicated:
+                            type: boolean
+                            nullable: true
+                          committerUserId:
+                            type: string
+                          statusChangedByUserId:
+                            type: string
+                            nullable: true
+                          bypassReason:
+                            type: string
+                            nullable: true
+                        required:
+                          - id
+                          - policyId
+                          - slug
+                          - folderId
+                          - createdAt
+                          - updatedAt
+                          - committerUserId
+                        additionalProperties: false
+                    required:
+                      - approval
+                    additionalProperties: false
+                    description: When secret protection policy is enabled
+  /api/v1/auth/universal-auth/login:
+    post:
+      description: Login with Universal Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                clientId:
+                  type: string
+                  description: Your Machine Identity Client ID.
+                clientSecret:
+                  type: string
+                  description: Your Machine Identity Client Secret.
+              required:
+                - clientId
+                - clientSecret
+              additionalProperties: false
+        required: true
+      responses:
+        '200':
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                  expiresIn:
+                    type: number
+                  accessTokenMaxTTL:
+                    type: number
+                  tokenType:
+                    type: string
+                    enum:
+                      - Bearer
+                required:
+                  - accessToken
+                  - expiresIn
+                  - accessTokenMaxTTL
+                  - tokenType
+                additionalProperties: false
+servers:
+  - url: 'https://app.infisical.com'
+    description: Production server
+  - url: 'http://localhost:8080'
+    description: Local server
