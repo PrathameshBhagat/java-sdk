@@ -8,7 +8,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.infisical</groupId>
-  <artifactId>sdk</artifactId>
+  <artifactId>sdk-v2</artifactId>
   <packaging>jar</packaging>
   <version>3.0.0</version>
   <url>https://infisical.com</url>
