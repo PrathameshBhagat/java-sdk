@@ -10,9 +10,34 @@
   <groupId>com.infisical</groupId>
   <artifactId>sdk</artifactId>
   <packaging>jar</packaging>
-  <version>1.0-SNAPSHOT</version>
-  <name>sdk</name>
-  <url>http://maven.apache.org</url>
+  <version>3.0.0-SNAPSHOT</version>
+  <url>https://infisical.com</url>
+
+  <name>Infisical SDK</name>
+  <description>Official Java SDK for Infisical</description>
+  <inceptionYear>2023</inceptionYear>
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>https://opensource.org/license/MIT</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>danielhougaard</id>
+      <name>Daniel Hougaard</name>
+      <url>https://github.com/danielhougaard/</url>
+    </developer>
+  </developers>
+  <scm>
+    <connection>scm:git:git://github.com/infisical/java-sdk.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/infiscial/java-sdk.git</developerConnection>
+    <url>https://github.com/infisical/java-sdk/</url>
+  </scm>
+
+
+
   <properties>
     <jackson-version>2.11.4</jackson-version>
     <jodatime-version>2.7</jodatime-version>
