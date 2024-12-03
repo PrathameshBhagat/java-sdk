@@ -26,6 +26,11 @@ jobs:
 
             - name: Build and test
               run: mvn -B clean verify
+              env:
+                  INFISICAL_MACHINE_IDENTITY_CLIENT_ID: ${{ secrets.INFISICAL_MACHINE_IDENTITY_CLIENT_ID }}
+                  INFISICAL_MACHINE_IDENTITY_CLIENT_SECRET: ${{ secrets.INFISICAL_MACHINE_IDENTITY_CLIENT_SECRET }}
+                  INFISICAL_PROJECT_ID: ${{ secrets.INFISICAL_PROJECT_ID }}
+                  INFISICAL_SITE_URL: ${{ secrets.INFISICAL_SITE_URL }}
 
             - name: Set version
               run: |
@@ -38,11 +43,6 @@ jobs:
                   MAVEN_USERNAME: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALUSERNAME }}
                   MAVEN_PASSWORD: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALPASSWORD }}
                   MAVEN_GPG_PASSPHRASE: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}
-                  # Testing
-                  INFISICAL_MACHINE_IDENTITY_CLIENT_ID: ${{ secrets.INFISICAL_MACHINE_IDENTITY_CLIENT_ID }}
-                  INFISICAL_MACHINE_IDENTITY_CLIENT_SECRET: ${{ secrets.INFISICAL_MACHINE_IDENTITY_CLIENT_SECRET }}
-                  INFISICAL_PROJECT_ID: ${{ secrets.INFISICAL_PROJECT_ID }}
-                  INFISICAL_SITE_URL: ${{ secrets.INFISICAL_SITE_URL }}
               run: |
                   mvn --batch-mode \
                       --no-transfer-progress \
