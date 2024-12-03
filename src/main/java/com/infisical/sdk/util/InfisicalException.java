@@ -1,28 +1,27 @@
 package com.infisical.sdk.util;
 
 
-import com.infisical.sdk.ApiException;
 import lombok.Getter;
+
+import java.io.IOException;
 
 public class InfisicalException extends Exception {
     @Getter
-    private final int statusCode;
-
-    @Getter
     private final String message;
+    private final StackTraceElement[] stackTrace;
 
-    public InfisicalException(String message,  int statusCode) {
+    public InfisicalException(String message) {
         super(message);  // Pass message to the parent Exception class
-        this.statusCode = statusCode;
         this.message = message;
+        this.stackTrace = null;
     }
 
     // Constructor that takes the original ApiException
-    public InfisicalException(ApiException cause) {
-        this.statusCode = cause.getCode();
+    public InfisicalException(IOException cause) {
+        this.stackTrace = cause.getStackTrace();
 
-        if (cause.getResponseBody() != null) {
-            this.message = cause.getResponseBody();
+        if (cause.getMessage() != null) {
+            this.message = cause.getMessage();
         } else {
             this.message = null;
         }

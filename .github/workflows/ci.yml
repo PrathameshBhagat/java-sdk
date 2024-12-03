@@ -1,0 +1,56 @@
+name: Release to Maven Central
+on:
+    push:
+        tags:
+            - "*"
+    workflow_dispatch:
+
+jobs:
+    integration-tests:
+        name: Run tests before deployment
+        uses: ./.github/workflows/test.yml
+        secrets:
+            INFISICAL_MACHINE_IDENTITY_CLIENT_ID: ${{ secrets.INFISICAL_MACHINE_IDENTITY_CLIENT_ID }}
+            INFISICAL_MACHINE_IDENTITY_CLIENT_SECRET: ${{ secrets.INFISICAL_MACHINE_IDENTITY_CLIENT_SECRET }}
+            INFISICAL_PROJECT_ID: ${{ secrets.INFISICAL_PROJECT_ID }}
+            INFISICAL_SITE_URL: ${{ secrets.INFISICAL_SITE_URL }}
+
+    publish:
+        needs: [integration-tests]
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Set up Java and Maven
+              uses: actions/setup-java@v4
+              with:
+                  java-version: "11"
+                  distribution: "temurin"
+                  cache: "maven"
+                  server-id: ossrh
+                  server-username: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALUSERNAME }}
+                  server-password: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALPASSWORD }}
+                  gpg-private-key: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEY }}
+                  gpg-passphrase: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}
+
+            - name: Build and test
+              run: mvn -B clean verify
+
+            - name: Set version
+              run: |
+                  VERSION=${GITHUB_REF#refs/tags/}
+                  mvn versions:set -DnewVersion=${VERSION} -DgenerateBackupPoms=false
+              if: github.event_name == 'release'
+
+            - name: Publish to Maven Central
+              env:
+                  MAVEN_USERNAME: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALUSERNAME }}
+                  MAVEN_PASSWORD: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALPASSWORD }}
+                  MAVEN_GPG_PASSPHRASE: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}
+              run: |
+                  mvn --batch-mode \
+                      --no-transfer-progress \
+                      clean deploy \
+                      -P release \
+                      -DskipTests
