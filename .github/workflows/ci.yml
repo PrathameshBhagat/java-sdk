@@ -30,6 +30,12 @@ jobs:
                 echo "allow-loopback-pinentry" > ~/.gnupg/gpg-agent.conf
                 echo "pinentry-mode loopback" > ~/.gnupg/gpg.conf
                 gpg-connect-agent reloadagent /bye
+                
+
+            - name: Setup Maven settings.xml
+              run: |
+                mkdir -p ~/.m2
+                echo "<settings><servers><server><id>ossrh</id><username>${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALUSERNAME }}</username><password>${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALPASSWORD }}</password></server></servers></settings>" > ~/.m2/settings.xml
 
             - name: Build and test
               run: mvn -B clean verify
