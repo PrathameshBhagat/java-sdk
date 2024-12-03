@@ -29,8 +29,7 @@ jobs:
                 echo "allow-loopback-pinentry" > ~/.gnupg/gpg-agent.conf
                 echo "pinentry-mode loopback" > ~/.gnupg/gpg.conf
                 gpg-connect-agent reloadagent /bye
-                
-                echo "${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}" | gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 --sign somefile.txt
+              
                 
 
             - name: Setup Maven settings.xml
