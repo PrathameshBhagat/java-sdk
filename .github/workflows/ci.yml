@@ -24,9 +24,20 @@ jobs:
                   gpg-private-key: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEY }}
                   gpg-passphrase: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}
 
+            - name: Import GPG key
+              run: |
+                echo "${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEY }}" | gpg --import
+                echo "allow-loopback-pinentry" > ~/.gnupg/gpg-agent.conf
+                echo "pinentry-mode loopback" > ~/.gnupg/gpg.conf
+                gpg-connect-agent reloadagent /bye
+
             - name: Build and test
               run: mvn -B clean verify
               env:
+                  MAVEN_USERNAME: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALUSERNAME }}
+                  MAVEN_PASSWORD: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALPASSWORD }}
+                  MAVEN_GPG_PASSPHRASE: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}
+
                   INFISICAL_MACHINE_IDENTITY_CLIENT_ID: ${{ secrets.INFISICAL_MACHINE_IDENTITY_CLIENT_ID }}
                   INFISICAL_MACHINE_IDENTITY_CLIENT_SECRET: ${{ secrets.INFISICAL_MACHINE_IDENTITY_CLIENT_SECRET }}
                   INFISICAL_PROJECT_ID: ${{ secrets.INFISICAL_PROJECT_ID }}
