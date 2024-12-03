@@ -12,17 +12,15 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v4
 
-            - name: Set up Java and Maven
-              uses: actions/setup-java@v4
+            - name: Set up Maven Central Repository
+              uses: actions/setup-java@v1
               with:
-                  java-version: "21"
-                  distribution: "temurin"
-                  cache: "maven"
-                  server-id: ossrh
-                  server-username: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALUSERNAME }}
-                  server-password: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALPASSWORD }}
-                  gpg-private-key: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEY }}
-                  gpg-passphrase: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}
+                java-version: 21
+                server-id: oss.sonatype.org
+                server-username: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALUSERNAME }}
+                server-password: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALPASSWORD }}
+                gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+                gpg-passphrase: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}
 
             - name: Import GPG key
               run: |
@@ -36,6 +34,13 @@ jobs:
               run: |
                 mkdir -p ~/.m2
                 echo "<settings><servers><server><id>ossrh</id><username>${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALUSERNAME }}</username><password>${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALPASSWORD }}</password></server></servers></settings>" > ~/.m2/settings.xml
+
+
+            - name: Verify settings.xml
+              run: |
+                echo "Checking settings.xml content (redacted):"
+                sed 's/\(<password>\)[^<]*\(<\/password>\)/\1****\2/g; s/\(<username>\)[^<]*\(<\/username>\)/\1****\2/g' ~/.m2/settings.xml
+                
 
             - name: Build and test
               run: mvn -B clean verify
@@ -54,15 +59,22 @@ jobs:
                   VERSION=${GITHUB_REF#refs/tags/}
                   mvn versions:set -DnewVersion=${VERSION} -DgenerateBackupPoms=false
 
-            - name: Publish to Maven Central
+#            - name: Publish to Maven Central
+#              env:
+#                  # Release
+#                  MAVEN_USERNAME: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALUSERNAME }}
+#                  MAVEN_PASSWORD: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALPASSWORD }}
+#                  MAVEN_GPG_PASSPHRASE: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}
+#              run: |
+#                  mvn --batch-mode \
+#                      --no-transfer-progress \
+#                      clean deploy \
+#                      -P release \
+#                      -DskipTests
+
+            - name: Publish package
+              run: mvn --batch-mode clean deploy -P central-deploy -DskipTests=true
               env:
-                  # Release
-                  MAVEN_USERNAME: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALUSERNAME }}
-                  MAVEN_PASSWORD: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALPASSWORD }}
-                  MAVEN_GPG_PASSPHRASE: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}
-              run: |
-                  mvn --batch-mode \
-                      --no-transfer-progress \
-                      clean deploy \
-                      -P release \
-                      -DskipTests
+                MAVEN_USERNAME: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALUSERNAME }}
+                MAVEN_PASSWORD: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALPASSWORD }}
+                MAVEN_GPG_PASSPHRASE: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGINMEMORYKEYPASSWORD }}
