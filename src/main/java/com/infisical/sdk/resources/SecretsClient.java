@@ -1,116 +1,104 @@
 package com.infisical.sdk.resources;
 
-
-
-import com.infisical.sdk.ApiException;
+import com.infisical.sdk.api.QueryBuilder;
 import com.infisical.sdk.models.*;
+
 import com.infisical.sdk.util.Helper;
 
-
-import com.infisical.sdk.api.DefaultApi;
-import com.infisical.sdk.ApiClient;
+import com.infisical.sdk.api.ApiClient;
 import com.infisical.sdk.util.InfisicalException;
-
-import java.math.BigDecimal;
+import java.util.List;
 
 public class SecretsClient {
-    private final DefaultApi request;
+    private final ApiClient httpClient;
 
     public SecretsClient(ApiClient apiClient) {
-        this.request = new DefaultApi(apiClient);
+        this.httpClient = apiClient;
     }
 
-    public InlineResponse200 ListSecrets(String projectId, String environmentSlug, String secretPath, Boolean expandSecretReferences, Boolean recursive, Boolean includeImports) throws InfisicalException {
-        try {
+    public List<Secret> ListSecrets(String projectId, String environmentSlug, String secretPath, Boolean expandSecretReferences, Boolean recursive, Boolean includeImports) throws InfisicalException {
+        var url = String.format("%s%s", this.httpClient.GetBaseUrl(), "/api/v3/secrets/raw");
 
-        return this.request.apiV3SecretsRawGet(
-                projectId,
-                null,
-                environmentSlug,
-                secretPath,
-                Helper.booleanToString(expandSecretReferences),
-                Helper.booleanToString(recursive),
-                Helper.booleanToString(includeImports),
-                null
-        );
+        var queryParameters = new QueryBuilder()
+            .add("workspaceId", projectId)
+            .add("environment", environmentSlug)
+            .add("secretPath", secretPath)
+            .add("expandSecretReferences", Helper.booleanToString(expandSecretReferences))
+            .add("recursive", Helper.booleanToString(recursive))
+            .add("includeImports", Helper.booleanToString(includeImports))
+            .build();
 
-        } catch (ApiException e) {
-            throw new InfisicalException(e);
-        }
+        var listSecrets = this.httpClient.get(url, queryParameters, ListSecretsResponse.class);
+
+        return listSecrets.getSecrets();
     }
 
-    public InlineResponse2001 GetSecret(String secretName, String projectId, String environmentSlug, String secretPath, Boolean expandSecretReferences, Boolean includeImports, String secretType) throws InfisicalException {
-        try {
-            return this.request.apiV3SecretsRawSecretNameGet(
-                secretName,
-                projectId,
-                null,
-                environmentSlug,
-                secretPath,
-                null,
-                secretType,
-                Helper.booleanToString(expandSecretReferences),
-                Helper.booleanToString(includeImports)
-            );
-        } catch (ApiException e) {
-            throw new InfisicalException(e);
-        }
+    public Secret GetSecret(String secretName, String projectId, String environmentSlug, String secretPath, Boolean expandSecretReferences, Boolean includeImports, String secretType) throws InfisicalException {
+        var url = String.format("%s%s", this.httpClient.GetBaseUrl(), String.format("/api/v3/secrets/raw/%s", secretName));
+
+        var queryParameters = new QueryBuilder()
+            .add("workspaceId", projectId)
+            .add("environment", environmentSlug)
+            .add("secretPath", secretPath)
+            .add("expandSecretReferences", Helper.booleanToString(expandSecretReferences))
+            .add("includeImports", Helper.booleanToString(includeImports))
+            .add("type", secretType)
+            .build();
+
+        var result = this.httpClient.get(url, queryParameters, SingleSecretResponse.class);
+
+        return result.getSecret();
     }
 
-    public InlineResponse2002 UpdateSecret(String secretName, String projectId, String environmentSlug, String secretPath, String newSecretValue, String newSecretName) throws InfisicalException {
+    public Secret UpdateSecret(String secretName, String projectId, String environmentSlug, String secretPath, String newSecretValue, String newSecretName) throws InfisicalException {
+        var url = String.format("%s%s", this.httpClient.GetBaseUrl(), String.format("/api/v3/secrets/raw/%s", secretName));
 
-        try {
-            var params = new RawSecretNameBody2();
+        var inputBuilder = UpdateSecretInput.builder()
+                .secretPath(secretPath)
+                .projectId(projectId)
+                .environmentSlug(environmentSlug)
+                .newSecretName(newSecretName)
+                .secretValue(newSecretValue);
 
-            params.setEnvironment(environmentSlug);
-            params.setSecretPath(secretPath);
-            params.setWorkspaceId(projectId);
+        if (newSecretName != null) inputBuilder.newSecretName(newSecretName);
+        if (newSecretName != null) inputBuilder.secretValue(newSecretValue);
+
+        var requestInput = inputBuilder.build();
 
 
+        var result = this.httpClient.patch(url, requestInput, SingleSecretResponse.class);
 
-
-            if (newSecretName != null) params.setNewSecretName(newSecretName);
-            if (newSecretName != null) params.setSecretValue(newSecretValue);
-
-
-            return this.request.apiV3SecretsRawSecretNamePatch(params, secretName);
-        } catch (ApiException e) {
-            throw new InfisicalException(e);
-        }
-    }
-
-    public InlineResponse2002 CreateSecret(String secretName, String secretValue, String projectId, String environmentSlug, String secretPath) throws InfisicalException {
-        try {
-            var params = new RawSecretNameBody();
-
-            params.setWorkspaceId(projectId);
-            params.setEnvironment(environmentSlug);
-            params.setSecretPath(secretPath);
-
-            params.setSecretValue(!secretValue.isEmpty() ? secretValue : "");
-
-            return this.request.apiV3SecretsRawSecretNamePost(params, secretName);
-
-        } catch (ApiException e) {
-            throw new InfisicalException(e);
-        }
-    }
-
-    public InlineResponse2002 DeleteSecret(String secretName, String projectId, String environmentSlug, String secretPath) throws InfisicalException {
-        try {
-
-            var params = new RawSecretNameBody1();
-
-            params.setWorkspaceId(projectId);
-            params.setEnvironment(environmentSlug);
-            params.setSecretPath(secretPath);
-
-            return this.request.apiV3SecretsRawSecretNameDelete(params, secretName);
-
-        } catch (ApiException e) {
-            throw new InfisicalException(e);
-        }
+        return result.getSecret();
     }
 
 
+    public Secret CreateSecret(String secretName, String secretValue, String projectId, String environmentSlug, String secretPath) throws InfisicalException {
+        var url = String.format("%s%s", this.httpClient.GetBaseUrl(), String.format("/api/v3/secrets/raw/%s", secretName));
+
+        var createSecretInput = CreateSecretInput.builder()
+            .secretPath(secretPath)
+            .projectId(projectId)
+            .environmentSlug(environmentSlug)
+            .secretValue(secretValue)
+            .build();
+
+        createSecretInput.setSecretValue(!secretValue.isEmpty() ? secretValue : "");
+
+        var result = this.httpClient.post(url, createSecretInput, SingleSecretResponse.class);
+
+        return result.getSecret();
+    }
+
+    public Secret DeleteSecret(String secretName, String projectId, String environmentSlug, String secretPath) throws InfisicalException {
+        var url = String.format("%s%s", this.httpClient.GetBaseUrl(), String.format("/api/v3/secrets/raw/%s", secretName));
+
+        var deleteSecretInput = DeleteSecretInput.builder()
+            .secretPath(secretPath)
+            .projectId(projectId)
+            .environmentSlug(environmentSlug)
+            .build();
+
+        var result = this.httpClient.delete(url, deleteSecretInput, SingleSecretResponse.class);
+        return result.getSecret();
+    }
 }
