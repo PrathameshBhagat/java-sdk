@@ -188,7 +188,7 @@
                 <arg>--pinentry-mode</arg>
                 <arg>loopback</arg>
               </gpgArguments>
-              <passphraseServerId>gpg.passphrase</passphraseServerId>
+              <passphrase>${env.MAVEN_GPG_PASSPHRASE}</passphrase>
             </configuration>
           </execution>
         </executions>
