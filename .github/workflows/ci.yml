@@ -75,7 +75,7 @@ jobs:
 #                      -DskipTests
 
             - name: Publish package
-              run: mvn --batch-mode clean deploy -P central-deploy -DskipTests=true
+              run: mvn --batch-mode clean deploy -P release -DskipTests=true
               env:
                 MAVEN_USERNAME: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALUSERNAME }}
                 MAVEN_PASSWORD: ${{ secrets.ORG_GRADLE_PROJECT_MAVENCENTRALPASSWORD }}

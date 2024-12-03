@@ -117,11 +117,15 @@
     </dependency>
   </dependencies>
 
-
-
+  <!-- Profiles -->
   <profiles>
+    <!-- Release profile for deploying to Maven Central -->
     <profile>
       <id>release</id>
+      <activation>
+        <!-- Only activate if it's a release build -->
+        <activeByDefault>false</activeByDefault>
+      </activation>
       <build>
         <plugins>
           <plugin>
@@ -166,7 +170,7 @@
                     <arg>--pinentry-mode</arg>
                     <arg>loopback</arg>
                   </gpgArguments>
-                  <passphrase>${env.MAVEN_GPG_PASSPHRASE}</passphrase>
+                  <passphrase>${env.MAVEN_GPG_PASSPHRASE}</passphrase> <!-- GPG passphrase from environment -->
                 </configuration>
               </execution>
             </executions>
@@ -176,8 +180,10 @@
     </profile>
   </profiles>
 
+  <!-- Build section -->
   <build>
     <plugins>
+      <!-- Compiler Plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -195,6 +201,7 @@
         </configuration>
       </plugin>
 
+      <!-- Nexus Staging Plugin (for deploying to Sonatype) -->
       <plugin>
         <groupId>org.sonatype.plugins</groupId>
         <artifactId>nexus-staging-maven-plugin</artifactId>
@@ -206,6 +213,8 @@
           <autoReleaseAfterClose>true</autoReleaseAfterClose>
         </configuration>
       </plugin>
+
+      <!-- Attach Sources and Javadocs -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
@@ -232,28 +241,7 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-gpg-plugin</artifactId>
-        <version>3.1.0</version>
-        <executions>
-          <execution>
-            <id>sign-artifacts</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>sign</goal>
-            </goals>
-            <configuration>
-              <gpgArguments>
-                <arg>--pinentry-mode</arg>
-                <arg>loopback</arg>
-              </gpgArguments>
-              <passphrase>${env.MAVEN_GPG_PASSPHRASE}</passphrase>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
     </plugins>
   </build>
+
 </project>
