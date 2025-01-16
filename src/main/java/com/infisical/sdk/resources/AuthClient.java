@@ -26,4 +26,8 @@ public class AuthClient {
       var credential = this.apiClient.post(url, params, MachineIdentityCredential.class);
       this.onAuthenticate.accept(credential.getAccessToken());
   }
+
+  public void SetAccessToken(String accessToken) {
+    this.onAuthenticate.accept(accessToken);
+  }
 }

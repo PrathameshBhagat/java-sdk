@@ -76,7 +76,7 @@ The SDK methods are organized into the following high-level categories:
 
 The `Auth` component provides methods for authentication:
 
-#### Universal Auth
+### Universal Auth
 
 #### Authenticating
 ```java
@@ -86,10 +86,20 @@ sdk.Auth().UniversalAuthLogin(
 );
 ```
 
+
 **Parameters:**
 - `clientId` (string): The client ID of your Machine Identity.
 - `clientSecret` (string): The client secret of your Machine Identity.
 
+### Access Token Auth
+
+#### Authenticating
+```java
+sdk.Auth().SetAccessToken("ACCESS_TOKEN");
+```
+
+**Parameters:**
+- `accessToken` (string): The access token you want to use for authentication.
 
 ### `Secrets`
 
