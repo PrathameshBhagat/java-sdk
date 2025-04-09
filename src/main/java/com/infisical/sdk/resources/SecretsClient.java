@@ -16,7 +16,7 @@ public class SecretsClient {
         this.httpClient = apiClient;
     }
 
-    public List<Secret> ListSecrets(String projectId, String environmentSlug, String secretPath, Boolean expandSecretReferences, Boolean recursive, Boolean includeImports) throws InfisicalException {
+    public List<Secret> ListSecrets(String projectId, String environmentSlug, String secretPath, Boolean expandSecretReferences, Boolean recursive, Boolean includeImports, Boolean setSecretsOnSystemProperties) throws InfisicalException {
         var url = String.format("%s%s", this.httpClient.GetBaseUrl(), "/api/v3/secrets/raw");
 
         var queryParameters = new QueryBuilder()
@@ -29,6 +29,12 @@ public class SecretsClient {
             .build();
 
         var listSecrets = this.httpClient.get(url, queryParameters, ListSecretsResponse.class);
+
+        if (setSecretsOnSystemProperties) {
+          for (Secret secret : listSecrets.getSecrets()) {
+            System.setProperty(secret.getSecretKey(), secret.getSecretValue());
+          }
+        }
 
         return listSecrets.getSecrets();
     }

@@ -114,7 +114,8 @@ public List<Secret> ListSecrets(
     String secretPath,
     Boolean expandSecretReferences,
     Boolean recursive,
-    Boolean includeImports
+    Boolean includeImports,
+    Boolean setSecretsOnSystemProperties
 )
 
 throws InfisicalException
@@ -128,6 +129,7 @@ List<Secret> secrets = await sdk.Secrets().ListSecrets(
   false, // Should expand secret references
   false, // Should get secrets recursively from sub folders
   false, // Should include imports
+  false // Should set the fetched secrets as key/value pairs on the system properties. Makes the secrets accessible as System.getProperty("<secret-key>")
 );
 ```
 
@@ -138,6 +140,7 @@ List<Secret> secrets = await sdk.Secrets().ListSecrets(
 - `expandSecretReferences` (boolean): Whether to expand secret references.
 - `recursive` (boolean): Whether to list secrets recursively.
 - `includeImports` (boolean): Whether to include imported secrets.
+- `setSecretsOnSystemProperties` (boolean): Set the retrieved secrets as key/value pairs on the system properties, making them accessible through `System.getProperty("<secret-key>")`
 
 **Returns:**
 - `List<Secret>`: The response containing the list of secrets.
