@@ -1,16 +1,14 @@
 package com.infisical.sdk;
 
-import com.infisical.sdk.util.EnvironmentVariables;
-import com.infisical.sdk.util.InfisicalException;
-
-import com.infisical.sdk.util.RandomUtil;
-import org.junit.jupiter.api.*;
-import com.infisical.sdk.config.SdkConfig;
-
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.infisical.sdk.config.SdkConfig;
+import com.infisical.sdk.util.EnvironmentVariables;
+import com.infisical.sdk.util.InfisicalException;
+import com.infisical.sdk.util.RandomUtil;
 
 
 public class InfisicalSdkTest {
@@ -33,7 +31,7 @@ public class InfisicalSdkTest {
         });
 
         try {
-            var secrets = sdk.Secrets().ListSecrets(envVars.getProjectId(), "dev", "/", false, false, false);
+            var secrets = sdk.Secrets().ListSecrets(envVars.getProjectId(), "dev", "/", false, false, false, false);
             logger.info("Secrets length {}", secrets.size());
 
         } catch (InfisicalException e) {
