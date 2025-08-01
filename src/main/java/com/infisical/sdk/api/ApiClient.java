@@ -107,7 +107,9 @@ public class ApiClient {
         try {
             HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl).newBuilder();
 
-            queryParams.forEach(urlBuilder::addQueryParameter);
+            if (queryParams != null) {
+                queryParams.forEach(urlBuilder::addQueryParameter);
+            }
 
             var requestBuilder = new Request.Builder()
                 .url(urlBuilder.build())
