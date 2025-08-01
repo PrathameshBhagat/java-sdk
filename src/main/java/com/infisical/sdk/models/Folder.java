@@ -1,8 +1,6 @@
 package com.infisical.sdk.models;
 
 import com.google.gson.annotations.SerializedName;
-
-import lombok.Builder;
 import lombok.Data;
 
 @Data
