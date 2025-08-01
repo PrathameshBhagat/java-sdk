@@ -79,6 +79,15 @@ The `Auth` component provides methods for authentication:
 ### Universal Auth
 
 #### Authenticating
+
+```java
+public void UniversalAuthLogin(
+  String clientId,
+  String clientSecret
+)
+throws InfisicalException
+```
+
 ```java
 sdk.Auth().UniversalAuthLogin(
   "CLIENT_ID",
@@ -91,9 +100,43 @@ sdk.Auth().UniversalAuthLogin(
 - `clientId` (string): The client ID of your Machine Identity.
 - `clientSecret` (string): The client secret of your Machine Identity.
 
+### LDAP Auth
+
+```java
+public void LdapAuthLogin(
+  LdapAuthLoginInput input
+)
+throws InfisicalException
+```
+
+```java
+var input = LdapAuthLoginInput
+  .builder()
+  .identityId("<machine-identity-id>")
+  .username("<ldap-username>")
+  .password("<ldap-password>")
+  .build();
+
+sdk.Auth().LdapAuthLogin(input);
+```
+
+**Parameters:**
+- `input` (LdapAuthLoginInput): The input for authenticating with LDAP.
+  - `identityId` (String): The ID of the machine identity to authenticate with.
+  - `username` (String): The LDAP username.
+  - `password` (String): The LDAP password.
+
 ### Access Token Auth
 
 #### Authenticating
+
+```java
+public void SetAccessToken(
+  String accessToken
+)
+throws InfisicalException
+```
+
 ```java
 sdk.Auth().SetAccessToken("ACCESS_TOKEN");
 ```
@@ -288,3 +331,152 @@ Secret deletedSecret = sdk.Secrets().DeleteSecret(
 **Returns:**
 - `Secret`: The deleted secret.
 
+
+### `Folders`
+
+#### Get Folder By Name 
+
+```java
+public Folder Get(
+  String folderId
+);
+throws InfisicalException
+```
+
+```java
+Folder folder = sdk.Folders().Get("<folder-id>");
+```
+
+**Parameters:**
+- `folderId` (String): The ID of the folder to retrieve.
+
+**Returns:**
+- `Folder`: The retrieved folder.
+
+#### List Folders
+
+```java
+public List<Folder> List(
+  ListFoldersInput input
+)
+throws InfisicalException
+```
+
+```java
+ListFoldersInput input = ListFoldersInput
+  .builder()
+  .projectId("<your-project-id>")
+  .environmentSlug("<env-slug>")
+  .folderPath("/")
+  .recursive(false)
+  .build();
+
+List<Folder> folders = sdk.Folders().List(input);
+```
+
+
+**Parameters:**
+- `input` (ListFoldersInput): The input for listing folders.
+  - `projectId` (String): The ID of the project to list folders from.
+  - `environmentSlug` (String): The slug of the environment to list folders from.
+  - `folderPath` (String): The path to list folders from. Defaults to `/`.
+  - `recursive` (Boolean): Whether or not to list sub-folders recursively from the specified folder path and downwards. Defaults to `false`.
+
+**Returns:**
+- `List<Folder>`: The retrieved folders.
+
+#### Create Folder
+
+```java
+public Folder Create(
+  CreateFolderInput input
+)
+throws InfisicalException
+```
+
+```java
+var input = CreateFolderInput
+  .builder()
+  .projectId("<your-project-id>")
+  .environmentSlug("<env-slug>")
+  .folderName("<folder-name>")
+  .folderPath("/")
+  .description("Optional folder description")
+  .build();
+
+Folder createdFolder = sdk.Folders().Create(input);
+```
+
+**Parameters:**
+- `input` (CreateFolderInput): The input for creating a folder.
+  - `projectId` (String): The ID of the project to create the folder in.
+  - `environmentSlug` (String): The slug of the environment to create the folder in.
+  - `folderPath` (String): The path to create the folder in. Defaults to `/`.
+  - `folderName` (String): The name of the folder to create.
+  - `description` (String): The description of the folder to create. This is optional.
+
+**Returns:**
+- `Folder`: The created folder.
+
+#### Update Folder
+
+```java
+public Folder Update(
+  UpdateFolderInput input
+)
+throws InfisicalException
+```
+
+```java
+var input = UpdateFolderInput
+  .builder()
+  .projectId("<your-project-id>")
+  .environmentSlug("<env-slug>")
+  .folderId("<id-of-folder-to-update>")
+  .newFolderName("<the-new-folder-name>")
+  .folderPath("/")
+  .build();
+
+Folder updatedFolder = sdk.Folders().Update(input);
+```
+
+**Parameters:**
+- `input` (UpdateFolderInput): The input for updating a folder.
+  - `projectId` (String): The ID of the project where the folder exists.
+  - `environmentSlug` (String): The slug of the environment where the folder exists.
+  - `folderPath` (String): The path of the folder to update.
+  - `folderId` (String): The ID of the folder to update.
+  - `newFolderName` (String): The new folder name.
+
+**Returns:**
+- `Folder`: The updated folder.
+
+#### Delete Folder
+
+```java
+public Folder Delete(
+  DeleteFolderInput input
+)
+throws InfisicalException
+```
+
+```java
+var input = DeleteFolderInput
+  .builder()
+  .folderId("<the-folder-id>")
+  .environmentSlug("<env-slug>")
+  .projectId("<your-project-id>")
+  .build();
+
+Folder deletedFolder = sdk.Folders().Delete(input);
+```
+
+
+**Parameters:**
+- `input` (DeleteFolderInput): The input for deleting a folder.
+  - `projectId` (String): The ID of the project where the folder exists.
+  - `environmentSlug` (String): The slug of the environment where the folder exists.
+  - `folderId` (String): The ID of the folder to delete.
+
+**Returns:**
+- `Folder`: The deleted folder.

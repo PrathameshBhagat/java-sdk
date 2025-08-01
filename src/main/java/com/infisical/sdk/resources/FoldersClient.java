@@ -16,7 +16,7 @@ public class FoldersClient {
     this.httpClient = apiClient;
   }
 
-  public Folder CreateFolder(CreateFolderInput input) throws InfisicalException {
+  public Folder Create(CreateFolderInput input) throws InfisicalException {
     var url = String.format("%s%s", this.httpClient.GetBaseUrl(), "/api/v1/folders");
 
     var result = this.httpClient.post(url, input, SingleFolderResponse.class);
@@ -24,7 +24,7 @@ public class FoldersClient {
     return result.getFolder();
   }
 
-  public Folder GetFolder(String folderId) throws InfisicalException {
+  public Folder Get(String folderId) throws InfisicalException {
     if(Helper.isNullOrEmpty(folderId)) {
       throw new InfisicalException("Folder ID is required");
     }
@@ -36,7 +36,7 @@ public class FoldersClient {
     return result.getFolder();
   }
 
-  public List<Folder> ListFolders(ListFoldersInput input) throws InfisicalException {
+  public List<Folder> List(ListFoldersInput input) throws InfisicalException {
     var validationMsg = input.validate();
 
     if (validationMsg != null) {
@@ -49,7 +49,7 @@ public class FoldersClient {
     return result.getFolders();
   }
 
-  public Folder UpdateFolder(UpdateFolderInput input) throws InfisicalException {
+  public Folder Update(UpdateFolderInput input) throws InfisicalException {
     var validationMsg = input.validate();
 
     if (validationMsg != null) {
@@ -63,7 +63,7 @@ public class FoldersClient {
     return result.getFolder();
   }
 
-  public Folder DeleteFolder(DeleteFolderInput input) throws InfisicalException {
+  public Folder Delete(DeleteFolderInput input) throws InfisicalException {
     var validationMsg = input.validate();
     if (validationMsg != null) {
       throw new InfisicalException(validationMsg);
