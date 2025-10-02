@@ -32,5 +32,13 @@ class AwsAuthProviderTest {
                   return Map.entry(parts[0], List.of(parts[1]));
                 })
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+    assertEquals(
+        Map.ofEntries(
+            Map.entry("Host", "sts.us-west-2.amazonaws.com"),
+            Map.entry("X-Amz-Date", "20251002T230735Z"),
+            Map.entry(
+                "Authorization",
+                "AWS4-HMAC-SHA256 Credential=MOCK_ACCESS_KEY/20251002/us-west-2/sts/aws4_request, SignedHeaders=host;x-amz-date, Signature=09bdfc811945a6696912eb468b046029a67c3418b58588c32d88a7989dc53ed3")),
+        loginInput.getIamRequestHeaders());
   }
 }

@@ -6,6 +6,8 @@ import com.amazonaws.auth.AWS4Signer;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.http.HttpMethodName;
 import com.amazonaws.util.SdkHttpUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.infisical.sdk.models.AwsAuthLoginInput;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -17,13 +19,17 @@ import lombok.Data;
 @Data
 @Builder
 public class AwsAuthProvider {
+  private static final ObjectMapper objectMapper = new ObjectMapper();
+
   @Builder.Default private final String serviceName = "sts";
   @Builder.Default private final HttpMethodName methodName = HttpMethodName.POST;
   @Builder.Default private final String endpointTemplate = "https://sts.%s.amazonaws.com";
 
   @Builder.Default
   private final Map<String, List<String>> params =
-      Map.of("Action", List.of("GetCallerIdentity"), "Version", List.of("2011-06-15"));
+      Map.ofEntries(
+          Map.entry("Action", List.of("GetCallerIdentity")),
+          Map.entry("Version", List.of("2011-06-15")));
 
   public AwsAuthLoginInput fromCredentials(String region, AWSCredentials credentials)
       throws URISyntaxException {
@@ -40,12 +46,19 @@ public class AwsAuthProvider {
     signer.setRegionName(region);
     signer.sign(request, credentials);
 
-    System.out.println("Signed Request Headers:");
-    request.getHeaders().forEach((key, value) -> System.out.println(key + ": " + value));
-    return AwsAuthLoginInput.builder()
-        .iamHttpRequestMethod(methodName.name())
-        .iamRequestHeaders("FIXME")
-        .iamRequestBody(iamRequestBody)
-        .build();
+    final Map<String, String> requestHeaders = request.getHeaders();
+    // TODO: add content-type and content length?
+    //       ref:
+    // https://github.com/Infisical/go-sdk/blob/3f1b7f831a883ea30a9182f86bd0173f4cf82a22/auth.go#L293-L294
+
+    try {
+      return AwsAuthLoginInput.builder()
+          .iamHttpRequestMethod(methodName.name())
+          .iamRequestHeaders(objectMapper.writeValueAsString(requestHeaders))
+          .iamRequestBody(iamRequestBody)
+          .build();
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
