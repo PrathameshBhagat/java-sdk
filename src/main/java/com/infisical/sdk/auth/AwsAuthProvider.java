@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.infisical.sdk.models.AwsAuthLoginInput;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import lombok.Builder;
@@ -31,6 +32,8 @@ public class AwsAuthProvider {
           Map.entry("Action", List.of("GetCallerIdentity")),
           Map.entry("Version", List.of("2011-06-15")));
 
+  private final Date overrideDate;
+
   public AwsAuthLoginInput fromCredentials(String region, AWSCredentials credentials)
       throws URISyntaxException {
 
@@ -44,6 +47,9 @@ public class AwsAuthProvider {
     final AWS4Signer signer = new AWS4Signer();
     signer.setServiceName(serviceName);
     signer.setRegionName(region);
+    if (overrideDate != null) {
+      signer.setOverrideDate(overrideDate);
+    }
     signer.sign(request, credentials);
 
     final Map<String, String> requestHeaders = request.getHeaders();

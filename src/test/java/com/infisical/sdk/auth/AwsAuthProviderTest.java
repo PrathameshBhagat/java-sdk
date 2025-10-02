@@ -3,11 +3,15 @@ package com.infisical.sdk.auth;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.SdkClock;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.infisical.sdk.models.AwsAuthLoginInput;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -15,10 +19,12 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 class AwsAuthProviderTest {
+  private static final ObjectMapper objectMapper = new ObjectMapper();
 
   @Test
-  void testFromCredentials() throws URISyntaxException {
-    final AwsAuthProvider provider = AwsAuthProvider.builder().build();
+  void testFromCredentials() throws URISyntaxException, JsonProcessingException {
+    final AwsAuthProvider provider =
+        AwsAuthProvider.builder().overrideDate(new Date(1759446719)).build();
     final AwsAuthLoginInput loginInput =
         provider.fromCredentials(
             "us-west-2", new BasicAWSCredentials("MOCK_ACCESS_KEY", "MOCK_SECRET_KEY"));
@@ -35,10 +41,10 @@ class AwsAuthProviderTest {
     assertEquals(
         Map.ofEntries(
             Map.entry("Host", "sts.us-west-2.amazonaws.com"),
-            Map.entry("X-Amz-Date", "20251002T230735Z"),
+            Map.entry("X-Amz-Date", "19700121T084406Z"),
             Map.entry(
                 "Authorization",
-                "AWS4-HMAC-SHA256 Credential=MOCK_ACCESS_KEY/20251002/us-west-2/sts/aws4_request, SignedHeaders=host;x-amz-date, Signature=09bdfc811945a6696912eb468b046029a67c3418b58588c32d88a7989dc53ed3")),
-        loginInput.getIamRequestHeaders());
+                "AWS4-HMAC-SHA256 Credential=MOCK_ACCESS_KEY/19700121/us-west-2/sts/aws4_request, SignedHeaders=host;x-amz-date, Signature=f5736d3f614856326236dc15ebcfa47b4b615bc19a9da8fc24b2b767e9c50efa")),
+        objectMapper.readValue(loginInput.getIamRequestHeaders(), Map.class));
   }
 }
