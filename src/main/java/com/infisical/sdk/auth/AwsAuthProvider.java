@@ -11,6 +11,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.infisical.sdk.models.AwsAuthLoginInput;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -60,8 +62,14 @@ public class AwsAuthProvider {
     try {
       return AwsAuthLoginInput.builder()
           .iamHttpRequestMethod(methodName.name())
-          .iamRequestHeaders(objectMapper.writeValueAsString(requestHeaders))
-          .iamRequestBody(iamRequestBody)
+          .iamRequestHeaders(
+              Base64.getEncoder()
+                  .encodeToString(
+                      objectMapper
+                          .writeValueAsString(requestHeaders)
+                          .getBytes(StandardCharsets.UTF_8)))
+          .iamRequestBody(
+              Base64.getEncoder().encodeToString(iamRequestBody.getBytes(StandardCharsets.UTF_8)))
           .build();
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e);
