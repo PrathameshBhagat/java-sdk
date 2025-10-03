@@ -66,7 +66,10 @@ public class AwsAuthProvider {
                         .putProperty(AwsV4FamilyHttpSigner.SERVICE_SIGNING_NAME, serviceName)
                         .putProperty(AwsV4HttpSigner.REGION_NAME, region))
             .request();
-    final Map<String, List<String>> requestHeaders = signedRequest.headers();
+    final Map<String, String> requestHeaders =
+        signedRequest.headers().entrySet().stream()
+            .map(entry -> Map.entry(entry.getKey(), entry.getValue().getFirst()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     final String encodedHeader;
     try {
       encodedHeader =

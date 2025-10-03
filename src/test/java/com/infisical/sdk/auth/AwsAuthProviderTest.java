@@ -2,7 +2,6 @@ package com.infisical.sdk.auth;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.amazonaws.auth.BasicAWSCredentials;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.infisical.sdk.models.AwsAuthLoginInput;
@@ -16,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 
 class AwsAuthProviderTest {
   private static final ObjectMapper objectMapper = new ObjectMapper();
