@@ -10,7 +10,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Base64;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -46,16 +45,20 @@ public class AwsAuthProvider {
 
   private final Instant overrideInstant;
 
-  public AwsAuthLoginInput fromCredentials(String region, AwsCredentials credentials) {
+  public AwsAuthLoginInput fromCredentials(
+      String region, AwsCredentials credentials, String sessionToken) {
     final AwsV4HttpSigner signer = AwsV4HttpSigner.create();
     final String iamRequestURL = endpointTemplate.formatted(region);
     final String iamRequestBody = encodeParameters(params);
-    final SdkHttpFullRequest request =
+    final SdkHttpFullRequest.Builder requestBuilder =
         SdkHttpFullRequest.builder()
             .uri(URI.create(iamRequestURL))
             .method(httpMethod)
-            .appendHeader("Content-Type", contentType)
-            .build();
+            .appendHeader("Content-Type", contentType);
+    if (sessionToken != null) {
+      requestBuilder.appendHeader("X-Amz-Security-Token", sessionToken);
+    }
+    final SdkHttpFullRequest request = requestBuilder.build();
     final SdkHttpRequest signedRequest =
         signer
             .sign(

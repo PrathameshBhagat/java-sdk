@@ -25,7 +25,9 @@ class AwsAuthProviderTest {
         AwsAuthProvider.builder().overrideInstant(Instant.ofEpochSecond(1759446719)).build();
     final AwsAuthLoginInput loginInput =
         provider.fromCredentials(
-            "us-west-2", AwsBasicCredentials.create("MOCK_ACCESS_KEY", "MOCK_SECRET_KEY"));
+            "us-west-2",
+            AwsBasicCredentials.create("MOCK_ACCESS_KEY", "MOCK_SECRET_KEY"),
+            "MOCK_SESSION_TOKEN");
     assertEquals("POST", loginInput.getIamHttpRequestMethod());
 
     final String decodedBody =
@@ -52,11 +54,12 @@ class AwsAuthProviderTest {
             Map.entry("Content-Length", "43"),
             Map.entry(
                 "x-amz-content-sha256",
-                "2e5272931159dc39306511e6dbae66f365e6748f021352ad514b568d66ebba7c"),
+                "ab821ae955788b0e33ebd34c208442ccfc2d406e2edc5e7a39bd6458fbb4f843"),
+            Map.entry("X-Amz-Security-Token", "MOCK_SESSION_TOKEN"),
             Map.entry("X-Amz-Date", "20251002T231159Z"),
             Map.entry(
                 "Authorization",
-                "AWS4-HMAC-SHA256 Credential=MOCK_ACCESS_KEY/20251002/us-west-2/sts/aws4_request, SignedHeaders=content-type;host;x-amz-content-sha256;x-amz-date, Signature=0b47d8813cf09e9f5cc7a1edce21384e8d9c11ae8cd4a1599d6f307672d4c421")),
+                "AWS4-HMAC-SHA256 Credential=MOCK_ACCESS_KEY/20251002/us-west-2/sts/aws4_request, SignedHeaders=content-type;host;x-amz-content-sha256;x-amz-date;x-amz-security-token, Signature=9b1b93454bea36297168ed67a861df12d17136f47cbdf5d23b1daa0fe704742b")),
         actualHeaders);
   }
 }
