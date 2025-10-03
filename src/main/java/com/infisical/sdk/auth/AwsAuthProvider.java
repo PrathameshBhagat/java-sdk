@@ -17,6 +17,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
+import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
+import software.amazon.awssdk.auth.credentials.InstanceProfileCredentialsProvider;
 import software.amazon.awssdk.http.ContentStreamProvider;
 import software.amazon.awssdk.http.SdkHttpFullRequest;
 import software.amazon.awssdk.http.SdkHttpMethod;
@@ -24,6 +26,8 @@ import software.amazon.awssdk.http.SdkHttpRequest;
 import software.amazon.awssdk.http.auth.aws.signer.AwsV4FamilyHttpSigner;
 import software.amazon.awssdk.http.auth.aws.signer.AwsV4HttpSigner;
 import software.amazon.awssdk.http.auth.spi.signer.HttpSigner;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.regions.providers.DefaultAwsRegionProviderChain;
 
 @Data
 @Builder
@@ -45,6 +49,14 @@ public class AwsAuthProvider {
 
   private final Instant overrideInstant;
 
+  /**
+   * Create AwsAuthLoginInput from given AWS credentials.
+   *
+   * @param region region of AWS identity
+   * @param credentials AWS credentials for creating the login input
+   * @param sessionToken Session token for creating the login input
+   * @return the AwsAuthLoginInput created from the given credentials for exchanging access token
+   */
   public AwsAuthLoginInput fromCredentials(
       String region, AwsCredentials credentials, String sessionToken) {
     final AwsV4HttpSigner signer = AwsV4HttpSigner.create();
@@ -99,6 +111,25 @@ public class AwsAuthProvider {
         .iamRequestHeaders(encodedHeader)
         .iamRequestBody(encodedBody)
         .build();
+  }
+
+  /**
+   * Create AwsAuthLoginInput from the instance profile in the current environment.
+   *
+   * @return the AwsAuthLoginInput created from the current instance profile for exchanging access
+   *     token
+   */
+  public AwsAuthLoginInput fromInstanceProfile() {
+    try (InstanceProfileCredentialsProvider provider =
+        InstanceProfileCredentialsProvider.create()) {
+      final AwsSessionCredentials credentials =
+          (AwsSessionCredentials) provider.resolveCredentials();
+      final DefaultAwsRegionProviderChain regionProvider =
+          DefaultAwsRegionProviderChain.builder().build();
+      final Region region = regionProvider.getRegion();
+      final String sessionToken = credentials.sessionToken();
+      return fromCredentials(region.id(), credentials, sessionToken);
+    }
   }
 
   public static String encodeParameters(Map<String, List<String>> params) {
