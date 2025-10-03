@@ -3,6 +3,7 @@ package com.infisical.sdk.auth;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.infisical.sdk.models.AwsAuthParameters;
 import java.net.URLDecoder;
@@ -46,7 +47,8 @@ class AwsAuthProviderTest {
     final String decodedHeaders =
         new String(
             Base64.getDecoder().decode(loginInput.getIamRequestHeaders()), StandardCharsets.UTF_8);
-    final Map<String, String> actualHeaders = objectMapper.readValue(decodedHeaders, Map.class);
+    final Map<String, String> actualHeaders =
+        objectMapper.readValue(decodedHeaders, new TypeReference<>() {});
     assertEquals(
         Map.ofEntries(
             Map.entry("Host", "sts.us-west-2.amazonaws.com"),
