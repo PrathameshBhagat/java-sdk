@@ -24,7 +24,7 @@ public class InfisicalSdkTest {
         String identityId = "8c7ed837-8246-4ec4-aa65-508cf1349529";
 
         var sdk = new InfisicalSdk(new SdkConfig.Builder()
-            .withSiteUrl("http://localhost:8080")
+            .withSiteUrl("https://5f472d056749.ngrok.app")
             .build()
         );
 
@@ -38,8 +38,11 @@ public class InfisicalSdkTest {
                                 .fromInstanceProfile()
                                 .toLoginInput("361bda71-9a9b-4634-9206-0cbaab646799"));
         }
+
+
         catch (InfisicalException e) {
             logger.error(e.getMessage());
+            throw new AssertionError(e.getMessage());
         }
     }
 
