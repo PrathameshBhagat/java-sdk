@@ -6,6 +6,9 @@ import com.infisical.sdk.models.AwsAuthLoginInput;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
@@ -21,6 +24,7 @@ import software.amazon.awssdk.http.SdkHttpMethod;
 import software.amazon.awssdk.http.SdkHttpRequest;
 import software.amazon.awssdk.http.auth.aws.signer.AwsV4FamilyHttpSigner;
 import software.amazon.awssdk.http.auth.aws.signer.AwsV4HttpSigner;
+import software.amazon.awssdk.http.auth.spi.signer.HttpSigner;
 
 @Data
 @Builder
@@ -40,7 +44,7 @@ public class AwsAuthProvider {
           Map.entry("Action", List.of("GetCallerIdentity")),
           Map.entry("Version", List.of("2011-06-15")));
 
-  private final Date overrideDate;
+  private final Instant overrideInstant;
 
   public AwsAuthLoginInput fromCredentials(String region, AwsCredentials credentials) {
     final AwsV4HttpSigner signer = AwsV4HttpSigner.create();
@@ -51,25 +55,31 @@ public class AwsAuthProvider {
             .uri(URI.create(iamRequestURL))
             .method(httpMethod)
             .appendHeader("Content-Type", contentType)
-            .appendHeader("Content-Length", String.valueOf(iamRequestBody.length()))
             .build();
     final SdkHttpRequest signedRequest =
         signer
             .sign(
-                signingRequest ->
-                    signingRequest
-                        .request(request)
-                        .identity(credentials)
-                        .payload(
-                            ContentStreamProvider.fromByteArray(
-                                iamRequestBody.getBytes(StandardCharsets.UTF_8)))
-                        .putProperty(AwsV4FamilyHttpSigner.SERVICE_SIGNING_NAME, serviceName)
-                        .putProperty(AwsV4HttpSigner.REGION_NAME, region))
+                signingRequest -> {
+                  var req =
+                      signingRequest
+                          .request(request)
+                          .identity(credentials)
+                          .payload(
+                              ContentStreamProvider.fromByteArray(
+                                  iamRequestBody.getBytes(StandardCharsets.UTF_8)))
+                          .putProperty(AwsV4FamilyHttpSigner.SERVICE_SIGNING_NAME, serviceName)
+                          .putProperty(AwsV4HttpSigner.REGION_NAME, region);
+                  if (overrideInstant != null) {
+                    req.putProperty(
+                        HttpSigner.SIGNING_CLOCK, Clock.fixed(overrideInstant, ZoneOffset.UTC));
+                  }
+                })
             .request();
     final Map<String, String> requestHeaders =
         signedRequest.headers().entrySet().stream()
             .map(entry -> Map.entry(entry.getKey(), entry.getValue().getFirst()))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    requestHeaders.put("Content-Length", String.valueOf(iamRequestBody.length()));
     final String encodedHeader;
     try {
       encodedHeader =

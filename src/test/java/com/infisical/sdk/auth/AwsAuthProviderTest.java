@@ -5,12 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.infisical.sdk.models.AwsAuthLoginInput;
-import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -21,12 +20,12 @@ class AwsAuthProviderTest {
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
   @Test
-  void testFromCredentials() throws URISyntaxException, JsonProcessingException {
+  void testFromCredentials() throws JsonProcessingException {
     final AwsAuthProvider provider =
-        AwsAuthProvider.builder().overrideDate(new Date(1759446719)).build();
+        AwsAuthProvider.builder().overrideInstant(Instant.ofEpochSecond(1759446719)).build();
     final AwsAuthLoginInput loginInput =
         provider.fromCredentials(
-            "us-west-2", new BasicAWSCredentials("MOCK_ACCESS_KEY", "MOCK_SECRET_KEY"));
+            "us-west-2", AwsBasicCredentials.create("MOCK_ACCESS_KEY", "MOCK_SECRET_KEY"));
     assertEquals("POST", loginInput.getIamHttpRequestMethod());
 
     final String decodedBody =
@@ -49,10 +48,15 @@ class AwsAuthProviderTest {
     assertEquals(
         Map.ofEntries(
             Map.entry("Host", "sts.us-west-2.amazonaws.com"),
-            Map.entry("X-Amz-Date", "19700121T084406Z"),
+            Map.entry("Content-Type", "application/x-www-form-urlencoded; charset=utf-8"),
+            Map.entry("Content-Length", "43"),
+            Map.entry(
+                "x-amz-content-sha256",
+                "2e5272931159dc39306511e6dbae66f365e6748f021352ad514b568d66ebba7c"),
+            Map.entry("X-Amz-Date", "20251002T231159Z"),
             Map.entry(
                 "Authorization",
-                "AWS4-HMAC-SHA256 Credential=MOCK_ACCESS_KEY/19700121/us-west-2/sts/aws4_request, SignedHeaders=host;x-amz-date, Signature=f5736d3f614856326236dc15ebcfa47b4b615bc19a9da8fc24b2b767e9c50efa")),
+                "AWS4-HMAC-SHA256 Credential=MOCK_ACCESS_KEY/20251002/us-west-2/sts/aws4_request, SignedHeaders=content-type;host;x-amz-content-sha256;x-amz-date, Signature=0b47d8813cf09e9f5cc7a1edce21384e8d9c11ae8cd4a1599d6f307672d4c421")),
         actualHeaders);
   }
 }
