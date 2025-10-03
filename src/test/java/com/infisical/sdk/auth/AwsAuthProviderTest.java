@@ -69,7 +69,7 @@ class AwsAuthProviderTest {
         actualHeaders);
   }
 
-  static Stream<Arguments> provideTestData() {
+  static Stream<Arguments> encodeParametersCases() {
     return Stream.of(
         // empty
         Arguments.of(Map.of(), ""),
@@ -91,7 +91,7 @@ class AwsAuthProviderTest {
   }
 
   @ParameterizedTest
-  @MethodSource("provideTestData")
+  @MethodSource("encodeParametersCases")
   void testEncodeParameters(Map<String, List<String>> params, String expected) {
     assertEquals(expected, AwsAuthProvider.encodeParameters(params));
   }
