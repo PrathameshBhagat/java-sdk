@@ -54,12 +54,12 @@ class AwsAuthProviderTest {
             Map.entry("Content-Length", "43"),
             Map.entry(
                 "x-amz-content-sha256",
-                "ab821ae955788b0e33ebd34c208442ccfc2d406e2edc5e7a39bd6458fbb4f843"),
+                "2e5272931159dc39306511e6dbae66f365e6748f021352ad514b568d66ebba7c"),
             Map.entry("X-Amz-Security-Token", "MOCK_SESSION_TOKEN"),
             Map.entry("X-Amz-Date", "20251002T231159Z"),
             Map.entry(
                 "Authorization",
-                "AWS4-HMAC-SHA256 Credential=MOCK_ACCESS_KEY/20251002/us-west-2/sts/aws4_request, SignedHeaders=content-type;host;x-amz-content-sha256;x-amz-date;x-amz-security-token, Signature=9b1b93454bea36297168ed67a861df12d17136f47cbdf5d23b1daa0fe704742b")),
+                "AWS4-HMAC-SHA256 Credential=MOCK_ACCESS_KEY/20251002/us-west-2/sts/aws4_request, SignedHeaders=content-type;host;x-amz-content-sha256;x-amz-date;x-amz-security-token, Signature=9f345142fb0fe12b5fcbf27516876220c37e295f104f4dae9bdf32cbd42f6bdb")),
         actualHeaders);
   }
 }
