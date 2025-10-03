@@ -36,7 +36,7 @@ public class InfisicalSdkTest {
                         AwsAuthProvider.builder()
                                 .build()
                                 .fromInstanceProfile()
-                                .toLoginInput("361bda71-9a9b-4634-9206-0cbaab646799"));
+                                .toLoginInput(identityId));
         }
 
 
