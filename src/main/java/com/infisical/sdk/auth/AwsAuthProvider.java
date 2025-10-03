@@ -152,4 +152,8 @@ public class AwsAuthProvider {
                     URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8)))
         .collect(Collectors.joining("&"));
   }
+
+  public static AwsAuthProvider defaultProvider() {
+    return builder().build();
+  }
 }
