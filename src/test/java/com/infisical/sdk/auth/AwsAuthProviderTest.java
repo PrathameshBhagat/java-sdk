@@ -14,7 +14,11 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 
 class AwsAuthProviderTest {
@@ -63,5 +67,32 @@ class AwsAuthProviderTest {
                 "Authorization",
                 "AWS4-HMAC-SHA256 Credential=MOCK_ACCESS_KEY/20251002/us-west-2/sts/aws4_request, SignedHeaders=content-type;host;x-amz-content-sha256;x-amz-date;x-amz-security-token, Signature=9b1b93454bea36297168ed67a861df12d17136f47cbdf5d23b1daa0fe704742b")),
         actualHeaders);
+  }
+
+  static Stream<Arguments> provideTestData() {
+    return Stream.of(
+        // empty
+        Arguments.of(Map.of(), ""),
+        // simple
+        Arguments.of(
+            Map.ofEntries(Map.entry("a", List.of("123")), Map.entry("b", List.of("456"))),
+            "a=123&b=456"),
+        // sorting the key
+        Arguments.of(
+            Map.ofEntries(
+                Map.entry("d", List.of("3")),
+                Map.entry("a", List.of("0")),
+                Map.entry("c", List.of("2")),
+                Map.entry("b", List.of("1"))),
+            "a=0&b=1&c=2&d=3"),
+        Arguments.of(
+            Map.ofEntries(Map.entry("a", List.of("!@#$%^&*(){}[]"))),
+            "a=%21%40%23%24%25%5E%26*%28%29%7B%7D%5B%5D"));
+  }
+
+  @ParameterizedTest
+  @MethodSource("provideTestData")
+  void testEncodeParameters(Map<String, List<String>> params, String expected) {
+    assertEquals(expected, AwsAuthProvider.encodeParameters(params));
   }
 }
