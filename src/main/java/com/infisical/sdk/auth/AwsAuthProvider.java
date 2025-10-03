@@ -12,6 +12,7 @@ import java.time.ZoneOffset;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Data;
@@ -33,6 +34,7 @@ import software.amazon.awssdk.regions.providers.DefaultAwsRegionProviderChain;
 @Builder
 public class AwsAuthProvider {
   private static final ObjectMapper objectMapper = new ObjectMapper();
+  private static final Pattern REGION_REGEX = Pattern.compile("^[a-z0-9-]+$");
 
   @NonNull @Builder.Default private final String serviceName = "sts";
   @NonNull @Builder.Default private final SdkHttpMethod httpMethod = SdkHttpMethod.POST;
@@ -59,6 +61,9 @@ public class AwsAuthProvider {
    */
   public AwsAuthParameters fromCredentials(
       String region, AwsCredentials credentials, String sessionToken) {
+    if (!REGION_REGEX.matcher(region).matches()) {
+      throw new IllegalArgumentException("Invalid region: " + region);
+    }
     final AwsV4HttpSigner signer = AwsV4HttpSigner.create();
     final String iamRequestURL = endpointTemplate.formatted(region);
     final String iamRequestBody = encodeParameters(params);

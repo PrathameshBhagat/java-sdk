@@ -1,6 +1,7 @@
 package com.infisical.sdk.auth;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -23,6 +24,23 @@ import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 
 class AwsAuthProviderTest {
   private static final ObjectMapper objectMapper = new ObjectMapper();
+
+  static Stream<Arguments> invalidRegionCases() {
+    return Stream.of(Arguments.of(""), Arguments.of("myevialdomain.com?"), Arguments.of("!@#$"));
+  }
+
+  @ParameterizedTest
+  @MethodSource("invalidRegionCases")
+  void testInvalidRegions(String region) {
+    final AwsAuthProvider provider = AwsAuthProvider.defaultProvider();
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            provider.fromCredentials(
+                region,
+                AwsBasicCredentials.create("MOCK_ACCESS_KEY", "MOCK_SECRET_KEY"),
+                "MOCK_SESSION_TOKEN"));
+  }
 
   @Test
   void testFromCredentials() throws JsonProcessingException {
