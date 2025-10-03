@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.infisical.sdk.models.AwsAuthLoginInput;
+import com.infisical.sdk.models.AwsAuthParameters;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -23,7 +23,7 @@ class AwsAuthProviderTest {
   void testFromCredentials() throws JsonProcessingException {
     final AwsAuthProvider provider =
         AwsAuthProvider.builder().overrideInstant(Instant.ofEpochSecond(1759446719)).build();
-    final AwsAuthLoginInput loginInput =
+    final AwsAuthParameters loginInput =
         provider.fromCredentials(
             "us-west-2",
             AwsBasicCredentials.create("MOCK_ACCESS_KEY", "MOCK_SECRET_KEY"),

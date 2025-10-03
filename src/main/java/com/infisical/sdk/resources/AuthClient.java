@@ -1,13 +1,12 @@
 package com.infisical.sdk.resources;
 
+import com.infisical.sdk.api.ApiClient;
 import com.infisical.sdk.models.AwsAuthLoginInput;
 import com.infisical.sdk.models.LdapAuthLoginInput;
 import com.infisical.sdk.models.MachineIdentityCredential;
+import com.infisical.sdk.models.UniversalAuthLoginInput;
 import com.infisical.sdk.util.InfisicalException;
 import java.util.function.Consumer;
-import com.infisical.sdk.api.ApiClient;
-
-import com.infisical.sdk.models.UniversalAuthLoginInput;
 
 public class AuthClient {
   private final ApiClient apiClient;

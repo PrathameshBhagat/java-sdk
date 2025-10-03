@@ -8,17 +8,13 @@ import lombok.Data;
 @Builder
 public class AwsAuthLoginInput {
   private final String identityId;
-  private final String iamRequestBody;
   private final String iamHttpRequestMethod;
   private final String iamRequestHeaders;
+  private final String iamRequestBody;
 
   public String validate() {
     if (Helper.isNullOrEmpty(identityId)) {
       return "Identity ID is required";
-    }
-
-    if (Helper.isNullOrEmpty(iamRequestBody)) {
-      return "IamRequestBody is required";
     }
 
     if (Helper.isNullOrEmpty(iamHttpRequestMethod)) {
@@ -27,6 +23,10 @@ public class AwsAuthLoginInput {
 
     if (Helper.isNullOrEmpty(iamRequestHeaders)) {
       return "IamRequestHeaders is required";
+    }
+
+    if (Helper.isNullOrEmpty(iamRequestBody)) {
+      return "IamRequestBody is required";
     }
     return null;
   }

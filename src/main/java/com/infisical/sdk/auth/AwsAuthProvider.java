@@ -2,7 +2,7 @@ package com.infisical.sdk.auth;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.infisical.sdk.models.AwsAuthLoginInput;
+import com.infisical.sdk.models.AwsAuthParameters;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -57,7 +57,7 @@ public class AwsAuthProvider {
    * @param sessionToken Session token for creating the login input
    * @return the AwsAuthLoginInput created from the given credentials for exchanging access token
    */
-  public AwsAuthLoginInput fromCredentials(
+  public AwsAuthParameters fromCredentials(
       String region, AwsCredentials credentials, String sessionToken) {
     final AwsV4HttpSigner signer = AwsV4HttpSigner.create();
     final String iamRequestURL = endpointTemplate.formatted(region);
@@ -106,7 +106,7 @@ public class AwsAuthProvider {
     }
     final String encodedBody =
         Base64.getEncoder().encodeToString(iamRequestBody.getBytes(StandardCharsets.UTF_8));
-    return AwsAuthLoginInput.builder()
+    return AwsAuthParameters.builder()
         .iamHttpRequestMethod(httpMethod.name())
         .iamRequestHeaders(encodedHeader)
         .iamRequestBody(encodedBody)
@@ -119,7 +119,7 @@ public class AwsAuthProvider {
    * @return the AwsAuthLoginInput created from the current instance profile for exchanging access
    *     token
    */
-  public AwsAuthLoginInput fromInstanceProfile() {
+  public AwsAuthParameters fromInstanceProfile() {
     try (InstanceProfileCredentialsProvider provider =
         InstanceProfileCredentialsProvider.create()) {
       final AwsSessionCredentials credentials =
