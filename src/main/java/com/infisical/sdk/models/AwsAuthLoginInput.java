@@ -3,14 +3,15 @@ package com.infisical.sdk.models;
 import com.infisical.sdk.util.Helper;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
 
 @Data
 @Builder
 public class AwsAuthLoginInput {
-  private final String identityId;
-  private final String iamHttpRequestMethod;
-  private final String iamRequestHeaders;
-  private final String iamRequestBody;
+  @NonNull private final String identityId;
+  @NonNull private final String iamHttpRequestMethod;
+  @NonNull private final String iamRequestHeaders;
+  @NonNull private final String iamRequestBody;
 
   public String validate() {
     if (Helper.isNullOrEmpty(identityId)) {
