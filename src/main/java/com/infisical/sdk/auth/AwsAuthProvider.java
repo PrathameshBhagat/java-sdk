@@ -43,9 +43,7 @@ public class AwsAuthProvider {
   private final Date overrideDate;
 
   public AwsAuthLoginInput fromCredentials(String region, AwsCredentials credentials) {
-
     final AwsV4HttpSigner signer = AwsV4HttpSigner.create();
-
     final String iamRequestURL = endpointTemplate.formatted(region);
     final String iamRequestBody = encodeParameters(params);
     final SdkHttpFullRequest request =
@@ -55,7 +53,6 @@ public class AwsAuthProvider {
             .appendHeader("Content-Type", contentType)
             .appendHeader("Content-Length", String.valueOf(iamRequestBody.length()))
             .build();
-
     final SdkHttpRequest signedRequest =
         signer
             .sign(
@@ -69,23 +66,23 @@ public class AwsAuthProvider {
                         .putProperty(AwsV4FamilyHttpSigner.SERVICE_SIGNING_NAME, serviceName)
                         .putProperty(AwsV4HttpSigner.REGION_NAME, region))
             .request();
-
     final Map<String, List<String>> requestHeaders = signedRequest.headers();
+    final String encodedHeader;
     try {
-      return AwsAuthLoginInput.builder()
-          .iamHttpRequestMethod(httpMethod.name())
-          .iamRequestHeaders(
-              Base64.getEncoder()
-                  .encodeToString(
-                      objectMapper
-                          .writeValueAsString(requestHeaders)
-                          .getBytes(StandardCharsets.UTF_8)))
-          .iamRequestBody(
-              Base64.getEncoder().encodeToString(iamRequestBody.getBytes(StandardCharsets.UTF_8)))
-          .build();
+      encodedHeader =
+          Base64.getEncoder()
+              .encodeToString(
+                  objectMapper.writeValueAsString(requestHeaders).getBytes(StandardCharsets.UTF_8));
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e);
     }
+    final String encodedBody =
+        Base64.getEncoder().encodeToString(iamRequestBody.getBytes(StandardCharsets.UTF_8));
+    return AwsAuthLoginInput.builder()
+        .iamHttpRequestMethod(httpMethod.name())
+        .iamRequestHeaders(encodedHeader)
+        .iamRequestBody(encodedBody)
+        .build();
   }
 
   public static String encodeParameters(Map<String, List<String>> params) {
