@@ -1,6 +1,7 @@
 package com.infisical.sdk.resources;
 
 import com.infisical.sdk.api.ApiClient;
+import com.infisical.sdk.auth.AwsAuthProvider;
 import com.infisical.sdk.models.AwsAuthLoginInput;
 import com.infisical.sdk.models.LdapAuthLoginInput;
 import com.infisical.sdk.models.MachineIdentityCredential;
@@ -37,6 +38,10 @@ public class AuthClient {
     var url = String.format("%s%s", this.apiClient.GetBaseUrl(), "/api/v1/auth/ldap-auth/login");
     var credential = this.apiClient.post(url, input, MachineIdentityCredential.class);
     this.onAuthenticate.accept(credential.getAccessToken());
+  }
+
+  public void AwsAuthLogin(String identityId) throws InfisicalException {
+    AwsAuthLogin(AwsAuthProvider.defaultProvider().fromInstanceProfile().toLoginInput(identityId));
   }
 
   public void AwsAuthLogin(AwsAuthLoginInput input) throws InfisicalException {
