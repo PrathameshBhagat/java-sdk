@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NonNull;
 
 @Data
-@Builder
+@Builder(toBuilder = true)
 public class AwsAuthLoginInput {
   @NonNull private final String identityId;
   @NonNull private final String iamHttpRequestMethod;

@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.NonNull;
 
 @Data
-@Builder
+@Builder(toBuilder = true)
 public class AwsAuthParameters {
   @NonNull private final String iamHttpRequestMethod;
   @NonNull private final String iamRequestHeaders;
