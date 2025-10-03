@@ -10,6 +10,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Base64;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -135,6 +136,9 @@ public class AwsAuthProvider {
   public static String encodeParameters(Map<String, List<String>> params) {
     return params.entrySet().stream()
         .flatMap(entry -> entry.getValue().stream().map(item -> Map.entry(entry.getKey(), item)))
+        // Notice: this is not really needed for real world usage, but it makes the
+        //         body encoded in a deterministic order, so that unit test is much eaiser
+        .sorted(Map.Entry.comparingByKey())
         .map(
             entry ->
                 String.format(
