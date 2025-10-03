@@ -37,6 +37,10 @@ public class InfisicalSdkTest {
                                 .build()
                                 .fromInstanceProfile()
                                 .toLoginInput(identityId));
+
+            var secrets = sdk.Secrets().ListSecrets("cc7c320b-b0c1-422f-831a-a51d536dc3c2", "dev", "/",true, false, true, false);
+
+            logger.info("secrets: {}", secrets);
         }
 
 
