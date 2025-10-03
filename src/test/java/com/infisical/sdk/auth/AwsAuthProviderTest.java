@@ -42,7 +42,8 @@ class AwsAuthProviderTest {
         Arrays.stream(decodedBody.split("&"))
             .map(
                 item -> {
-                  final String[] parts = URLDecoder.decode(item, StandardCharsets.UTF_8).split("=");
+                  final String[] parts =
+                      URLDecoder.decode(item, StandardCharsets.UTF_8).split("=", 2);
                   return Map.entry(parts[0], List.of(parts[1]));
                 })
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
