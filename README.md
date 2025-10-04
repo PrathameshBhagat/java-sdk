@@ -43,7 +43,7 @@ Following is the directory structure of key directory ```src``` in this SDK :
     |   |    ├── auth   => (AwsAuthProvider class with it's methods)
     |   |    ├── config => (Just stores the url where the infisical instance exists, "app.infisical.com")
     |   |    ├── models => (Contains data classes/models, auto getters, setters & constructors)
-    |   |    ├── resourses => (Contains methods users sees/interacts mostly with,
+    |   |    ├── resources => (Contains methods users sees/interacts mostly with,
     |   |    |               This is also where auth methods are, UniversalAuth LadpAutlogin)
     |   |    ├── util   => (Nothing serious, just checks if is string’s null/empty, converts map to object etc)
     |   |    └── InfisicalSdk.java  =>  (Wrapper class for all of above classes but uses only most useful ones.)
