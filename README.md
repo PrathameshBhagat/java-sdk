@@ -34,7 +34,7 @@ You can find the documentation for the Java SDK on our [SDK documentation page](
 ## Directory Structure
 Following is the directory structure of key directory ```src``` in this SDK :
 
-```java
+```text
 |
 └── src/
     ├── main/
