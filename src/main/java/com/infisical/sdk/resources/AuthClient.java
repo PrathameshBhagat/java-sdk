@@ -7,6 +7,15 @@ import com.infisical.sdk.models.LdapAuthLoginInput;
 import com.infisical.sdk.models.MachineIdentityCredential;
 import com.infisical.sdk.models.UniversalAuthLoginInput;
 import com.infisical.sdk.util.InfisicalException;
+
+
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.auth.oauth2.IdTokenCredentials;
+import com.google.auth.oauth2.IdTokenProvider;
+import com.google.auth.oauth2.IdTokenProvider.Option;
+import com.google.auto.value.AutoValue.Builder;
+
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 public class AuthClient {
@@ -54,6 +63,30 @@ public class AuthClient {
     var url = String.format("%s%s", this.apiClient.GetBaseUrl(), "/api/v1/auth/aws-auth/login");
     var credential = this.apiClient.post(url, input, MachineIdentityCredential.class);
     this.onAuthenticate.accept(credential.getAccessToken());
+  }
+
+  public void GCPAuthLogin(String identityId) throws Exception{
+    		
+        GoogleCredentials googleCredentials = GoogleCredentials.getApplicationDefault();
+		
+        IdTokenCredentials idTokenCredentials =
+            IdTokenCredentials.newBuilder()
+                .setIdTokenProvider((IdTokenProvider) googleCredentials)
+                .setTargetAudience(identityId)
+                .setOptions(Arrays.asList(Option.FORMAT_FULL, Option.LICENSES_TRUE))
+                .build();
+
+        // Get the ID token.
+        String idToken = idTokenCredentials.refreshAccessToken().getTokenValue();
+
+        var url = String.format("%s%s", this.apiClient.GetBaseUrl(), "api/v1/auth/gcp-auth/login");
+        var body = String.format(" { \"identityId\": \"%s\",\"jwt\": \"%s\"}", identityId, idToken); 
+       
+        
+        var credential = this.apiClient.post(url,body,MachineIdentityCredential.class);
+        this.onAuthenticate.accept(credential.getAccessToken());
+
+    
   }
 
   public void SetAccessToken(String accessToken) {
