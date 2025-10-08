@@ -16,6 +16,7 @@ import com.google.auth.oauth2.IdTokenProvider.Option;
 import com.google.auto.value.AutoValue.Builder;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.function.Consumer;
 
 public class AuthClient {
@@ -79,8 +80,11 @@ public class AuthClient {
         // Get the ID token.
         String idToken = idTokenCredentials.refreshAccessToken().getTokenValue();
 
-        var url = String.format("%s%s", this.apiClient.GetBaseUrl(), "api/v1/auth/gcp-auth/login");
-        var body = String.format(" { \"identityId\": \"%s\",\"jwt\": \"%s\"}", identityId, idToken); 
+        var url = String.format("%s%s", this.apiClient.GetBaseUrl(), "/api/v1/auth/gcp-auth/login");
+        // Body cannot be a string so... HashMap can use bulider, POJO etc
+        var body =  new HashMap<>();
+          body.put("identityId", identityId);
+          body.put("jwt", idToken);
        
         
         var credential = this.apiClient.post(url,body,MachineIdentityCredential.class);
