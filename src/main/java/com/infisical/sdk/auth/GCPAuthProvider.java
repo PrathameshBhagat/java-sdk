@@ -8,20 +8,17 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.IdTokenCredentials;
 import com.google.auth.oauth2.IdTokenProvider;
 import com.google.auth.oauth2.IdTokenProvider.Option;
-import com.google.auto.value.AutoValue.Builder;
 
-import lombok.Data;
-
-@Data
-@Builder
 public class GCPAuthProvider {
 
-    public HashMap<String,String> GCPAuthInput(String identityId){
+    public static HashMap<String,String> getGCPAuthInput(String identityId){
 
         try{
 
+            // This will fetch credentials from environment variable named GOOGLE_APPLICATION_CREDENTIALS or
+            // or if it's running in a GCP instance it will get them from the instance itself (GCP service account attached) 
             GoogleCredentials googleCredentials = GoogleCredentials.getApplicationDefault();
-		
+
             IdTokenCredentials idTokenCredentials =
                 IdTokenCredentials.newBuilder()
                     .setIdTokenProvider((IdTokenProvider) googleCredentials)
@@ -43,6 +40,5 @@ public class GCPAuthProvider {
             throw new RuntimeException(e);
         }
 
-       
     }
 }
